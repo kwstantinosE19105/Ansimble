@@ -28,4 +28,12 @@ tasks:
      loop:
      - { name: 'alice', key: 'keys/alice.pub' }
      - { name: 'bob', key: 'keys/bob.pub'}
+
+    -name: Allow devops group to have passwordless sudo
+     ansible.builtin.copy: 
+          dest: /etc/sudoers.d/devops
+          content: "%devops ALL=(ALL) NOPASSWD:ALL"
+          mode: '0440'
+          
+          
          
