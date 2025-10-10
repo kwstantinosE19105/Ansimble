@@ -5,4 +5,27 @@ tasks:
 
 
     -name: Ensure "devops" group exists
-     ans
+     ansible.builtin.group:
+         name: devops
+         state: present
+
+    -name: Create users and add them to devops group
+     ansible.builtin.user:
+         name: "{{ item }}"
+         groups: devops
+         append: yes 
+         shell: /bin/bash
+         state: present
+     loop:
+        - alice
+        - bob
+
+    -name: Add authorized SSH keys for users
+     ansible.builtin.authorized_key:
+         user: "{{ item.name }}"
+         state: present
+         key: "{{ lookup('file', item.key) }}
+     loop:
+     - { name: 'alice', key: 'keys/alice.pub' }
+     - { name: 'bob', key: 'keys/bob.pub'}
+         
