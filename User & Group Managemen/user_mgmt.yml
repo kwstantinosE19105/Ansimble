@@ -1,0 +1,8 @@
+name: Manage users and groups
+hosts: servers
+become: yes
+tasks:
+
+
+    -name: Ensure "devops" group exists
+     ans
