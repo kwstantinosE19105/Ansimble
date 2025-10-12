@@ -1,2 +1,34 @@
 - name: Deploy LAMP stack
-  hosts:
+  hosts: lamp_servers
+  become: yes
+  tasks:
+
+    -name: Install LAMP
+     ansible.builtin.package:
+       name:
+        - apache2
+        - mysql-server
+        - php
+        - libapache2-mod-php
+        - php-mysql
+      state: present
+      update_cache: yes
+
+     -name: Ensure Apache is running
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: yes
+
+     - name: Ensure MySQL is running
+       ansible.builtin.service:
+        name: mysql
+        state: started
+        enabled: yes
+
+      - name: Deploy test PHP page
+       ansible.builtin.template:
+        src: templates/info.php.j2
+        dest: /var/www/html/info.php
+        mode: '0644'
+      
