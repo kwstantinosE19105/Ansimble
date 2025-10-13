@@ -1,0 +1,126 @@
+- name: Security Hardening Playbook
+  hosts: secure_servers
+  become: yes
+  tasks:
+
+     # ---------------- Firewall ----------------
+     - name: Install UFW (Debian/Ubuntu)
+       ansible.builtin.package:
+         name: ufw
+         state: present
+       when: ansible_os_family == "Debian"
+
+     - name: Configure UFW rules
+       community.general.ufw:
+         rule: allow
+         port: "{{ item }}"
+      loop:
+         -  22
+         - 80
+         - 443
+      when: ansible_os_family == "Debian
+
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
+      when: ansible_os_family == "Debian"
+
+    - name: Install firewalld (RHEL/CentOS)
+      ansible.builtin.package:
+        name: firewalld
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure firewalld is running
+      ansible.builtin.service:
+       name: firewallid
+       state: started
+       enabled: yes
+     when: ansible_os_family == "RedHat"
+
+    - name: Configure firewalld rules
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      loop:
+       - ssh
+       - http
+       - https
+      when: ansible_os_family == "RedHat"
+
+# ---------------- SSH Hardening ----------------
+    - name: Disable root SSH login
+      ansible.builtin.lineinfile:
+       path: /etc/ssh/sshd_config
+       regexp: '^PermitRootLogin'
+       line: 'PermitRootLogin no'
+       state: present
+       backup: yes
+     notify: Restart ssh
+
+    - name: Disable password authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        ragexp: "^PasswordAuthentication"
+        state: present
+        backup: yes
+      notify: Restart ssh
+
+# ---------------- Fail2Ban ----------------
+  - name: Install Fail2Ban
+      ansible.builtin.package:
+        name: fail2ban
+        state: present
+
+    - name: Ensure Fail2Ban is running
+      ansible.builtin.service:
+        name: fail2ban
+        state: started
+        enabled: yes
+      
+# ---------------- System Hardening ----------------
+
+  - name: Ensure unattended-upgrades installed (Debian/Ubuntu)
+      ansible.builtin.package:
+        name: unattended-upgrades
+        state: present
+      when: ansible_os_family == "Debian"
+
+
+  -name: Configure sysctl for basic hardening
+   ansible.posix.sysctl:
+     name: net.ipv4.ip_forward
+     value: '0'
+     state: present
+     sysctl_set: yes
+     reload: yes
+
+   handlers:
+    - name: Restart ssh
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+
+
+
+
+
+
+    
+
+
+       
+
+
+
+
+
+
+
+     
+     
