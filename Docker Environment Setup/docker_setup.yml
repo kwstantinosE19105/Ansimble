@@ -1,1 +1,26 @@
+- name: Setup Docker enviroment
+  host: docker_hosts
+  become: yes
+  tasks:
+
+   # ----------------dependencies ----------------
+
+  - name: Install required system packages
+    ansible.bultin.package:
+      name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      state: present
+    when: ansible_os_family == "Debian"
+
+ # ---------------- Add Docker GPG key ----------------
+ - name: Add Docker 
+  
+
+
+
+
 
