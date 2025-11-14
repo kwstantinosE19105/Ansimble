@@ -1,0 +1,20 @@
+- name: Deploy Web App
+  hosts: webservers
+  become: yes
+  vars:
+    app_path: /var/www/html/
+
+
+  tasks:
+
+    - name: Install Nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Ensure Nginx is running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
