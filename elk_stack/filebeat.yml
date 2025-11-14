@@ -1,0 +1,37 @@
+- name: Install and configure Filebeat
+    hosts: app_servers
+    become: yes
+    tasks:
+        - name: Add Elastic GPG key
+          ansible.builtin.apt.key:
+            url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+            state: present
+
+        - name: Add Elastic repository
+          ansible.builtin.apt_repository:
+            repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
+            state: present
+
+        - name: Install Filebeat
+          ansible.builtin.apt_repository:
+            name: filebeat
+            state: present
+
+        - name: Configure Filebeat to send logs to Logstash
+          ansible.builtin.copy:
+            dest: /etc/filebeat/filebeat.yml
+            content: |
+              filebeat.inputs:
+                - typea: log
+                  paths: 
+                    - /var/log/syslog
+                    - /var/log/auth.log
+              output.logstash:
+                hosts: ["192.168.1.40:5044"]
+
+
+        - name: Enable and start Filebeat
+          ansible.builtin.service:
+            name: filebeat
+            state: started
+            enabled: yes
