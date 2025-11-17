@@ -18,3 +18,21 @@
         name: nginx
         state: started
         enabled: yes
+
+
+    - neme: Deploy application files from Jenkins workspace
+      ansible.builtion.copy:
+        src: "{{ playbook_dir }}/app/"
+        dest: "{{ app_path }}"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+
+
+        
+        
